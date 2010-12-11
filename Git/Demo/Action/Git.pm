@@ -27,8 +27,8 @@ sub run{
               }elsif( m/^git:/ ){
                   warn( "$_\n" );
               }else{
-                  # Ignore other git output
-                  # print "Caught Git out: $_\n";
+                  # Other git output
+                  print "Git warning: $_\n";
               }
           }
       };
@@ -36,9 +36,8 @@ sub run{
     my $git = $character->git();
     my @cmd = $event->action();
     push( @cmd, @{ $event->args() } );
-    $self->{logger}->debug( sprintf( "Running git cmd for %-10s: %s", $character->name(), join( ' ', @cmd ) ) );
-    $git->run( @cmd );
-
+    $self->{logger}->debug( sprintf( "%10s : %s# git %s", $character->name(), $character->dir(), join( ' ', @cmd ) ) );
+    return $git->run( @cmd ) . "\n";
 }
 
 

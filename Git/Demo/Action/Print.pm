@@ -15,8 +15,11 @@ sub new{
 }
 
 sub run{
-    my $self = shift;
-    warn( __PACKAGE__ . "->execute not implemented yet!\n" );
+    my( $self, $character, $event ) = @_;
+    my @args = @{ $event->args() };
+    foreach( @args ){
+        printf( ">> %s says: %s\n", $character->name(), $_ );
+    }
 }
 
 

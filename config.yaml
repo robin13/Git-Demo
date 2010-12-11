@@ -1,2 +1,3 @@
 ---
-story_file: ./sample_story.yaml
+story_file: ./test.yaml
+verbose: 1

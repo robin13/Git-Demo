@@ -11,6 +11,7 @@ my $logger = Log::Log4perl->get_logger( 'gitdemo' );
 
 my $demo = Git::Demo->new( $conf );
 $demo->play();
+$logger->debug( "Test before warning" );
 warn( "This is a warning!" );
 my $in = <STDIN>;
 

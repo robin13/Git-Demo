@@ -17,11 +17,20 @@ sub new{
         $self->{$_} = $args->{$_};
     }
 
+    # And the optionals
+    foreach( qw/verbose/ ){
+        $self->{$_} = $args->{$_};
+    }
+
     my %action_handlers = ( 'git'   => Git::Demo::Action::Git->new(),
                             'print' => Git::Demo::Action::Print->new(),
                             'file'  => Git::Demo::Action::File->new(),
                            );
     $self->{action_handlers} = \%action_handlers;
+
+    my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
+    $self->{logger} = $logger;
+
     bless $self, $class;
     return $self;
 }
@@ -29,6 +38,7 @@ sub new{
 sub characters{
     my $self  = shift;
     my $event = shift;
+
     my @characters = ();
     my @names = split( / /, $event->characters() );
 
@@ -71,6 +81,7 @@ sub characters{
 sub exec{
     my $self  = shift;
     my $event = shift;
+    my $logger = $self->{logger};
 
     my $action_handler = undef;
     if( ! defined( $self->{action_handlers}->{ $event->type() } ) ){
@@ -79,7 +90,11 @@ sub exec{
 
     my @characters = $self->characters( $event );
     foreach my $character( @characters ){
-        $self->{action_handlers}->{ $event->type() }->run( $character, $event );
+        $logger->debug( sprintf( "running a %s action for %s", $event->type(), $character->name() ) );
+        my $rtn = $self->{action_handlers}->{ $event->type() }->run( $character, $event );
+        if( $self->{verbose} ){
+            print $rtn;
+        }
     }
 }
 1;

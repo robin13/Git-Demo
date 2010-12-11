@@ -19,6 +19,10 @@ sub new{
         $self->{$_} = $args->{$_};
     }
 
+    foreach( qw/verbose/ ){
+        $self->{$_} = $args->{$_};
+    }
+
     my $logger = Log::Log4perl->get_logger( __PACKAGE__ );
     $self->{logger} = $logger;
 
@@ -28,7 +32,9 @@ sub new{
         $self->load_story( $args->{story_file} );
     }
 
-    $self->{event_handler} = Git::Demo::Story::EventHandler->new( { story => $self } );
+    $self->{event_handler} = Git::Demo::Story::EventHandler->new( { story   => $self,
+                                                                    verbose => $self->{verbose},
+                                                                  } );
 
     $self->{characters}   ||= [];
     $self->{events}       ||= [];

@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use Git::Repository;
 use Git::Demo::Story;
-use Git::Demo::Action;
 
 use Log::Log4perl;
 use File::Util;
@@ -12,18 +11,29 @@ use File::Temp;
 
 sub new{
     my $class = shift;
-    my $conf = shift;
+    my $args = shift;
 
     foreach( qw/story_file/ ){
-        if( ! $conf->{$_} ){
+        if( ! $args->{$_} ){
             die( "Cannot start without $_ being defined\n" );
         }
     }
 
     my $self = {};
-    $self->{conf} = $conf;
+
+    # and the optionals
+    foreach( qw/verbose/ ){
+        $self->{$_} = $args->{$_};
+    }
+
+    $self->{conf} = $args;
     my $logger = Log::Log4perl->get_logger( "Git::Demo::Story" );
     $self->{logger} = $logger;
+
+    if( $self->{verbose} ){
+        $self->{logger}->info( "Running in verbose mode!" );
+    }
+
 
     $self->{dir} = File::Temp->newdir( UNLINK => 1 );
 
@@ -31,8 +41,10 @@ sub new{
         die( "Could not create temporary directory to work in" );
     }
     $logger->info( "Working directory: $self->{dir}" );
-    $self->{story} = Git::Demo::Story->new( { story_file => $conf->{story_file},
-                                              dir        => $self->{dir} } );
+    $self->{story} = Git::Demo::Story->new( { story_file => $args->{story_file},
+                                              dir        => $self->{dir},
+                                              verbose    => $self->{verbose},
+                                            } );
 
     bless $self, $class;
 

@@ -2,6 +2,8 @@ package Git::Demo::Action::File;
 use strict;
 use warnings;
 use File::Spec::Functions;
+use File::Util;
+use File::Basename;
 
 sub new{
     my $class = shift;
@@ -40,6 +42,48 @@ sub _touch{
         close FH;
     }
 }
+
+sub _copy{
+    my( $self, $character, $event ) = @_;
+    my $logger = $self->{logger};
+
+    my @args = @{ $event->args() };
+    if( scalar( @args ) < 2 ){
+        die( "need at least two paths for a copy" );
+    }
+
+    my $target_rel = pop( @args );
+    my $target_abs = catdir( $character->dir(), $target_rel );
+
+    # If there are more than one file to copy, the target must be a directory
+    if( scalar( @args ) > 1 && -f $target_abs ){
+        die( "Cannot copy multiple files to one target" );
+    }
+    if( ! -d $target_abs ){
+        my $f = File::Util->new();
+        if( ! $f->make_dir( $target_abs ) ){
+            die( "Could not create dir ($target_abs): $!" );
+        }
+    }
+
+    foreach my $path( @args ){
+        my $source_path = catfile( $character->dir(), $path );
+        my $target_path = undef;
+        if( scalar( @args ) > 1 ){
+            $target_path = catfile( $target_abs, fileparse( $source_path ) );
+        }else{
+            $target_path = $target_abs;
+        }
+        if( -f $source_path ){
+            if( ! rename( $source_path, $target_path ) ){
+                die( "Could not reanme from $source_path to $target_path: $!" );
+            }
+        }else{
+            warn( "File does not exist: $source_path\n" );
+        }
+    }
+}
+
 
 sub _append{
     my( $self, $character, $event ) = @_;
