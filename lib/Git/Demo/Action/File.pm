@@ -27,12 +27,8 @@ sub run{
         return $self->_append( $character, $event );
     }elsif( $event->action() eq 'copy' ){
         return $self->_copy( $character, $event );
-    }elsif( $event->action() eq 'copy_from_abs' ){
-        return $self->_copy( $character, $event, 'from_abs' );
     }elsif( $event->action() eq 'move' ){
         return $self->_move( $character, $event );
-    }elsif( $event->action() eq 'move_from_abs' ){
-        return $self->_move( $character, $event, 'from_abs' );
     }else{
         die( "Unknown action: " . $event->action() );
     }
@@ -53,8 +49,10 @@ sub _touch{
     return;
 }
 
+# Can accept absolute, or relative paths for the source
+# The target path will always be relative to the characters own directory
 sub _copy{
-    my( $self, $character, $event, $from_abs ) = @_;
+    my( $self, $character, $event ) = @_;
     my $logger = $self->{logger};
 
     my @args = @{ $event->args() };
@@ -81,7 +79,7 @@ sub _copy{
 
     foreach my $path( @args ){
         my $source_path;
-        if( $from_abs ){
+        if( file_name_is_absolute( $path ) ){
             $source_path = $path;
         }else{
             $source_path = catfile( $character->dir(), $path );
@@ -105,8 +103,10 @@ sub _copy{
 }
 
 
+# Can accept absolute, or relative paths for the source
+# The target path will always be relative to the characters own directory
 sub _move{
-    my( $self, $character, $event, $from_abs ) = @_;
+    my( $self, $character, $event ) = @_;
     my $logger = $self->{logger};
 
     my @args = @{ $event->args() };
@@ -115,7 +115,7 @@ sub _move{
     }
 
     my $source_abs;
-    if( $from_abs ){
+    if( file_name_is_absolute( $args[0] ) ){
         $source_abs = $args[0];
     }else{
         $source_abs = catdir( $character->dir(), $args[0] );

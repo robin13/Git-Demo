@@ -25,6 +25,26 @@ git-demo --log4perl /path/to/my/log4perl.conf --story_file /path/to/my/story.yam
 Usage with a .git-demo directory in your home:
 git-demo
 
+FAQ
+
+File::Temp is used to create a temporary directory to work in.  In this directory a
+sub directory is created for each character, and a git repository initialised there.
+
+In the current form, each character has just one repository, and it is assumed that
+all the characters are working on the same project.
+
+It is possible to run multiple Git::Demo instanses simultaneously - each one will
+create its own temporary directory to work in.
+
+To create a bare repository, create a character like this:
+
+  characters:
+  - name: origin
+    git_args:
+    - --bare
+
+This is also a good way to simulate a central repository from which the other characters
+can synchronise and collaborate in.
 
 SUPPORT AND DOCUMENTATION
 
